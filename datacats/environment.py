@@ -261,9 +261,7 @@ class Environment(object):
         """
         Set the owner of all apache storage files to www-data container user
         """
-        web_command(
-            command='/bin/chown -R www-data: /var/www/storage',
-            rw={self.sitedir + '/files': '/var/www/storage'})
+        task.fix_storage_permissions(self.sitedir)
 
     def create_ckan_ini(self):
         """

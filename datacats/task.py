@@ -479,6 +479,15 @@ def stop_supporting_containers(get_container_name):
     docker.remove_container(get_container_name('solr'))
 
 
+def fix_storage_permissions(sitedir):
+    """
+    Set the owner of all apache storage files to www-data container user
+    """
+    docker.web_command(
+        command='/bin/chown -R www-data: /var/www/storage',
+        rw={sitedir + '/files': '/var/www/storage'})
+
+
 def containers_running(get_container_name):
     """
     Return a list of containers tracked by this environment that are running
