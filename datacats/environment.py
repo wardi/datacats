@@ -10,7 +10,6 @@ import sys
 import subprocess
 import shutil
 import json
-import time
 import socket
 from sha import sha
 from struct import unpack
@@ -27,11 +26,9 @@ from datacats.scripts import (WEB, SHELL, PASTER, PASTER_CD, PURGE,
     UPDATE_ADD_ADMIN)
 from datacats.network import wait_for_service_available, ServiceTimeout
 from datacats.password import generate_password
-from datacats.error import DatacatsError, WebCommandError, PortAllocatedError
+from datacats.error import DatacatsError, PortAllocatedError
 
 WEB_START_TIMEOUT_SECONDS = 30
-DB_INIT_RETRY_SECONDS = 30
-DB_INIT_RETRY_DELAY = 2
 DOCKER_EXE = 'docker'
 
 
@@ -305,29 +302,18 @@ class Environment(object):
         ckan_extension_template(self.name, self.target)
         self.install_package_develop('ckanext-' + self.name + 'theme')
 
-    def ckan_db_init(self, retry_seconds=DB_INIT_RETRY_SECONDS):
+    def ckan_db_init(self):
         """
         Run db init to create all ckan tables
 
         :param retry_seconds: how long to retry waiting for db to start
         """
-        # XXX workaround for not knowing how long we need to wait
-        # for postgres to be ready. fix this by changing the postgres
-        # entrypoint, or possibly running once with command=/bin/true
-        started = time.time()
-        while True:
-            try:
-                self.run_command(
-                    '/usr/lib/ckan/bin/paster --plugin=ckan db init '
-                    '-c /project/development.ini',
-                    db_links=True,
-                    clean_up=True,
-                    )
-                break
-            except WebCommandError:
-                if started + retry_seconds > time.time():
-                    raise
-            time.sleep(DB_INIT_RETRY_DELAY)
+        self.run_command(
+            '/usr/lib/ckan/bin/paster --plugin=ckan db init '
+            '-c /project/development.ini',
+            db_links=True,
+            clean_up=True,
+            )
 
     def install_postgis_sql(self):
         web_command(
