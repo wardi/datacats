@@ -16,6 +16,6 @@ test:
         esac
       : parallel: true
     - cat test:
-      parallel: true
+        parallel: true
   post:
       - python setup.py test
