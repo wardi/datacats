@@ -15,8 +15,6 @@ test:
         2) echo master ;;
         esac > ckan_version
       : parallel: true
-    - cat test:
-        parallel: true
     - datacats create site1 -bn --ckan `cat ckan_version`:
         parallel: true
     - "[ ! -d site1/ckanext-site1theme ]":
